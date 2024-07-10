@@ -19,6 +19,9 @@ app.use('/api/', apiLimiter); // Rate limiter (100 requests per 15 minutes
 
 // Routes
 
+app.get('/api/healthcheck', (req, res) => {
+  res.send('Hello World!!!');
+});
 
 setupSwagger(app);
 
