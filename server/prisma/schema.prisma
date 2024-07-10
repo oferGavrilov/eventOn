@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +5,167 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String   @id @default(uuid())
+  firstName            String
+  lastName             String
+  email                String   @unique
+  password             String
+  isVerified           Boolean  @default(false)
+  verificationToken    String?
+  forgotPasswordToken  String?
+  forgotPasswordExpiresAt DateTime?
+  role                 UserRole
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  EventPlanner         Event[]  @relation("EventPlannerRelation")
+  SupplierProfile      SupplierProfile?
+  UserEvent            UserEvent[]
+  UserTask             UserTask[]
+  Application          Application[]
+}
+
+model Event {
+  id                   String   @id @default(uuid())
+  name                 String
+  date                 DateTime
+  description          String?
+  budget               Float
+  status               EventStatus
+  numberOfGuests       Int
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  plannerId            String?
+  planner              User?    @relation("EventPlannerRelation", fields: [plannerId], references: [id])
+  UserEvent            UserEvent[]
+  Guest                EventGuest[]  @relation("EventGuestRelation")
+  Task                 Task[]
+  Application          Application[]
+}
+
+model Guest {
+  id                   String   @id @default(uuid())
+  firstName            String
+  lastName             String
+  email                String
+  confirmationStatus   ConfirmationStatus
+  dishPreference       String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  EventGuest           EventGuest[]  @relation("EventGuestRelation")
+}
+
+model Task {
+  id                   String   @id @default(uuid())
+  eventId              String
+  description          String
+  deadline             DateTime
+  status               TaskStatus
+  priority             TaskPriority
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  Event                Event    @relation(fields: [eventId], references: [id])
+  UserTask             UserTask[]
+}
+
+model SupplierProfile {
+  id                   String   @id @default(uuid())
+  supplierId           String   @unique
+  description          String?
+  styles               String[]
+  images               Json
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  User                 User     @relation(fields: [supplierId], references: [id])
+}
+
+model Application {
+  id                   String   @id @default(uuid())
+  eventId              String
+  supplierId           String
+  status               ApplicationStatus
+  message              String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  Event                Event    @relation(fields: [eventId], references: [id])
+  User                 User     @relation(fields: [supplierId], references: [id])
+}
+
+model UserEvent {
+  id                   String   @id @default(uuid())
+  userId               String
+  eventId              String
+  role                 UserRole
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  User                 User     @relation(fields: [userId], references: [id])
+  Event                Event    @relation(fields: [eventId], references: [id])
+}
+
+model UserTask {
+  id                   String   @id @default(uuid())
+  userId               String
+  taskId               String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  User                 User     @relation(fields: [userId], references: [id])
+  Task                 Task     @relation(fields: [taskId], references: [id])
+}
+
+model EventGuest {
+  id                   String   @id @default(uuid())
+  eventId              String
+  guestId              String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  Event                Event    @relation("EventGuestRelation", fields: [eventId], references: [id])
+  Guest                Guest    @relation("EventGuestRelation", fields: [guestId], references: [id])
+}
+
+enum UserRole {
+  EventPlanner
+  Supplier
+  Admin
+}
+
+enum EventStatus {
+  Planned
+  InProgress
+  Completed
+  Cancelled
+}
+
+enum ConfirmationStatus {
+  Confirmed
+  Pending
+  Declined
+}
+
+enum TaskStatus {
+  Pending
+  InProgress
+  Completed
+}
+
+enum TaskPriority {
+  Low
+  Medium
+  High
+}
+
+enum ApplicationStatus {
+  Pending
+  Approved
+  Rejected
 }
