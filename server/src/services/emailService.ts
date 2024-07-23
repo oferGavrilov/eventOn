@@ -36,3 +36,11 @@ export const sendResetPasswordEmail = async (to: string, resetLink: string) => {
 
     await sendEmail(to, subject, text, html);
 };
+
+export const sendVerificationEmail = async (to: string, verificationLink: string) => {
+    const subject = 'Email Verification';
+    const text = `Please verify your email by clicking the following link: ${verificationLink}`;
+    const html = renderTemplate('verifyEmail', { verificationLink });
+
+    await sendEmail(to, subject, text, html);
+};

@@ -1,138 +1,139 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
 
 model User {
-  id                      String       @id @default(uuid())
+  id                      String    @id @default(uuid())
   firstName               String
   lastName                String
-  email                   String       @unique
+  email                   String    @unique
   password                String
-  isVerified              Boolean      @default(false)
+  isVerified              Boolean   @default(false)
   verificationToken       String?
   forgotPasswordToken     String?
   forgotPasswordExpiresAt DateTime?
   role                    UserRole
-  createdAt               DateTime     @default(now())
-  updatedAt               DateTime     @default(now())
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @default(now())
 
-  EventPlanner            EventPlanner?
-  Supplier                Supplier?
-  UserEvent               UserEvent[]
+  EventPlanner EventPlanner?
+  Supplier     Supplier?
+  UserEvent    UserEvent[]
 }
 
 model Supplier {
-  id                      String       @id @default(uuid())
-  userId                  String       @unique
-  description             String?
-  styles                  String?
-  images                  Json?
-  supplierType            SupplierType
+  id           String       @id @default(uuid())
+  userId       String       @unique
+  description  String?
+  styles       String?
+  images       Json?
+  supplierType SupplierType
 
-  User                    User         @relation(fields: [userId], references: [id])
-  Applications            Application[]
-  Events                  Event[]      @relation("SupplierEvents")
+  User         User          @relation(fields: [userId], references: [id])
+  Applications Application[]
+  Events       Event[]       @relation("SupplierEvents")
 }
 
 model EventPlanner {
-  id                      String       @id @default(uuid())
-  userId                  String       @unique
+  id     String @id @default(uuid())
+  userId String @unique
 
-  User                    User         @relation(fields: [userId], references: [id])
-  Tasks                   Task[]
-  Events                  Event[]      @relation("EventPlannerEvents")
+  User   User    @relation(fields: [userId], references: [id])
+  Tasks  Task[]
+  Events Event[] @relation("EventPlannerEvents")
 }
 
 model Event {
-  id                      String       @id @default(uuid())
-  name                    String
-  date                    DateTime
-  description             String?
-  budget                  Float
-  status                  EventStatus
-  numberOfGuests          Int
-  createdAt               DateTime     @default(now())
-  updatedAt               DateTime     @default(now())
+  id             String      @id @default(uuid())
+  name           String
+  date           DateTime
+  description    String?
+  budget         Float
+  status         EventStatus
+  numberOfGuests Int
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @default(now())
 
-  UserEvent               UserEvent[]
-  Guests                  EventGuest[] @relation("EventGuestRelation")
-  Tasks                   Task[]
-  Applications            Application[]
-  SupplierId              String?
-  EventPlannerId          String?
+  UserEvent      UserEvent[]
+  Guests         EventGuest[]  @relation("EventGuestRelation")
+  Tasks          Task[]
+  Applications   Application[]
+  SupplierId     String?
+  EventPlannerId String?
 
-  Supplier                Supplier?    @relation(fields: [SupplierId], references: [id], name: "SupplierEvents")
-  EventPlanner            EventPlanner? @relation(fields: [EventPlannerId], references: [id], name: "EventPlannerEvents")
+  Supplier     Supplier?     @relation(fields: [SupplierId], references: [id], name: "SupplierEvents")
+  EventPlanner EventPlanner? @relation(fields: [EventPlannerId], references: [id], name: "EventPlannerEvents")
 }
 
-
 model Guest {
-  id                      String       @id @default(uuid())
-  firstName               String
-  lastName                String
-  email                   String
-  confirmationStatus      ConfirmationStatus
-  dishPreference          String?
-  createdAt               DateTime     @default(now())
-  updatedAt               DateTime     @default(now())
+  id                 String             @id @default(uuid())
+  firstName          String
+  lastName           String
+  email              String
+  confirmationStatus ConfirmationStatus
+  dishPreference     String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @default(now())
 
-  EventGuest              EventGuest[] @relation("EventGuestRelation")
+  EventGuest EventGuest[] @relation("EventGuestRelation")
 }
 
 model Task {
-  id                      String       @id @default(uuid())
-  eventId                 String
-  eventPlannerId          String
-  description             String
-  deadline                DateTime
-  status                  TaskStatus
-  priority                TaskPriority
-  createdAt               DateTime     @default(now())
-  updatedAt               DateTime     @default(now())
+  id             String       @id @default(uuid())
+  eventId        String
+  eventPlannerId String
+  description    String
+  deadline       DateTime
+  status         TaskStatus
+  priority       TaskPriority
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now())
 
-  Event                   Event        @relation(fields: [eventId], references: [id])
-  EventPlanner            EventPlanner @relation(fields: [eventPlannerId], references: [id])
+  Event        Event        @relation(fields: [eventId], references: [id])
+  EventPlanner EventPlanner @relation(fields: [eventPlannerId], references: [id])
 }
 
 model Application {
-  id                      String       @id @default(uuid())
-  eventId                 String
-  supplierId              String
-  status                  ApplicationStatus
-  message                 String?
-  createdAt               DateTime     @default(now())
-  updatedAt               DateTime     @default(now())
+  id         String            @id @default(uuid())
+  eventId    String
+  supplierId String
+  status     ApplicationStatus
+  message    String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @default(now())
 
-  Event                   Event        @relation(fields: [eventId], references: [id])
-  Supplier                Supplier     @relation(fields: [supplierId], references: [id])
+  Event    Event    @relation(fields: [eventId], references: [id])
+  Supplier Supplier @relation(fields: [supplierId], references: [id])
 }
 
 model UserEvent {
-  id                      String       @id @default(uuid())
-  userId                  String
-  eventId                 String
-  role                    UserRole
-  createdAt               DateTime     @default(now())
-  updatedAt               DateTime     @default(now())
+  id        String   @id @default(uuid())
+  userId    String
+  eventId   String
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
-  User                    User         @relation(fields: [userId], references: [id])
-  Event                   Event        @relation(fields: [eventId], references: [id])
+  User  User  @relation(fields: [userId], references: [id])
+  Event Event @relation(fields: [eventId], references: [id])
 }
 
 model EventGuest {
-  id                      String       @id @default(uuid())
-  eventId                 String
-  guestId                 String
-  createdAt               DateTime     @default(now())
-  updatedAt               DateTime     @default(now())
+  id        String   @id @default(uuid())
+  eventId   String
+  guestId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
-  Event                   Event        @relation("EventGuestRelation", fields: [eventId], references: [id])
-  Guest                   Guest        @relation("EventGuestRelation", fields: [guestId], references: [id])
+  Event Event @relation("EventGuestRelation", fields: [eventId], references: [id])
+  Guest Guest @relation("EventGuestRelation", fields: [guestId], references: [id])
 }
 
 enum UserRole {

@@ -1,11 +1,19 @@
 import { Request, Response, NextFunction } from "express";
-import { SignupInput, LoginInput, ForgotPasswordInput, ResetPasswordInput } from '../validation/authValidation';
+import { SignupInput } from '../validation/authValidation';
+import { signupService } from "../services/authService";
+import logger from "../logger";
 
-export const signup = async (
+export const signupController = async (
     req: Request<{}, {}, SignupInput>,
     res: Response,
     next: NextFunction
 ) => {
-    const inputData: SignupInput = req.body;
-    
+    try {
+        const inputData: SignupInput = req.body;
+        const result = await signupService(inputData);
+        res.status(201).json(result);
+    } catch (error) {
+        logger.error(error);
+        next(error);
+    }
 }
