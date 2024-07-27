@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ZodSchema } from "zod";
-import { AppError } from "../middlewares/errorMiddleware";
+import { ZodError, ZodSchema } from "zod";
 
 export const validateRequest = (schema: ZodSchema<any>) => (
     req: Request,
@@ -8,9 +7,21 @@ export const validateRequest = (schema: ZodSchema<any>) => (
     next: NextFunction
 ) => {
     try {
-        schema.parse(req.body);
+        schema.parse({
+            body: req.body,
+            query: req.query,
+            params: req.params
+        });
+
         next();
-    } catch (err: any) {
-        next(new AppError(err.errors.map((error: any) => error.message).join(', '), 400));
+    } catch (error) {
+        if (error instanceof ZodError) {
+            return res.status(400).json({
+                status: 'fail',
+                message: error.errors
+            });
+        }
+        next(error);
     }
 }
+

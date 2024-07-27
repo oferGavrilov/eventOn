@@ -13,4 +13,5 @@ export const config = {
     twilioAuthToken: process.env.TWILIO_AUTH_TOKEN!,
     twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER!,
     clientUrl: process.env.CLIENT_URL!,
+    origin: process.env.ORIGIN!,
 };

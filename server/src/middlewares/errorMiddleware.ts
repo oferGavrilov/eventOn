@@ -1,22 +1,11 @@
-import {Request, Response, NextFunction} from 'express';
-
-export class AppError extends Error {
-    constructor(public message:string, public statusCode:number) {
+export default class AppError extends Error {
+    status: string;
+    isOperational: boolean;
+    constructor(public statusCode: number = 500, public message: string) {
         super(message);
-        this.statusCode = statusCode;
+        this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
+        this.isOperational = true;
+
+        Error.captureStackTrace(this, this.constructor);
     }
 }
-
-export const errorMiddleware = (
-    err: AppError,
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    const status = err.statusCode || 500;
-    res.status(status).json({
-        status: 'error',
-        statusCode: status,
-        message: err.message,
-    });
-};

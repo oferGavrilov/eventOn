@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import prisma from '../prisma';
 import { config } from '../utils/config';
-import { AppError } from '../middlewares/errorMiddleware';
+import  AppError from '../middlewares/errorMiddleware';
 import { SignupInput } from '../validation/authValidation';
 import { sendVerificationEmail } from './emailService';
 import logger from '../logger';
@@ -13,7 +13,7 @@ export const signupService = async (inputData: SignupInput) => {
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-        throw new AppError('User already exists', 400);
+        throw new AppError(400, 'User with this email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -31,7 +31,7 @@ export const signupService = async (inputData: SignupInput) => {
         }
     })
 
-    const verificationLink = `${config.clientUrl}/verify-email?token=${verificationToken}`;
+    const verificationLink = `${config.clientUrl}/api/auth/verify-email?token=${verificationToken}`;
     await sendVerificationEmail(user.email, verificationLink);
 
     const token = jwt.sign({

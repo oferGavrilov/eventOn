@@ -1,14 +1,17 @@
 import { z } from 'zod';
 
 export const signupSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(6),
-    firstName: z.string().min(1),
-    lastName: z.string().min(1),
-    role: z.enum(['EventPlanner', 'Supplier']),
+  body: z.object({
+      email: z.string().email(),
+      password: z.string().min(6),
+      firstName: z.string().min(1),
+      lastName: z.string().min(1),
+      role: z.enum(['EventPlanner', 'Supplier']),
+    }),
+  
   });
   
-  export type SignupInput = z.infer<typeof signupSchema>;
+  export type SignupInput = z.infer<typeof signupSchema>['body'];
   // export const loginSchema = z.object({
   //   email: z.string().email(),
   //   password: z.string().min(1),
