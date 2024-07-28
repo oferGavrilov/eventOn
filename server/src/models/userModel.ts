@@ -9,7 +9,10 @@ export interface IUser {
     verificationTokenExpiresAt: Date | null;
     forgotPasswordToken: string | null;
     forgotPasswordExpiresAt: Date | null;
-    role: 'EventPlanner' | 'Supplier' | 'Admin';
+    role: Role;
     createdAt: Date;
     updatedAt: Date;
 }
+
+// type for role
+export type Role = 'EventPlanner' | 'Supplier' | 'Admin';
