@@ -8,9 +8,15 @@ export const signupSchema = z.object({
       lastName: z.string().min(1),
       role: z.enum(['EventPlanner', 'Supplier']),
     }),
-  
   });
-  
+
+  export const verifyEmailSchema = z.object({
+    query: z.object({
+      token: z.string().min(1),
+    }),
+  });
+
+  export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>['query'];
   export type SignupInput = z.infer<typeof signupSchema>['body'];
   // export const loginSchema = z.object({
   //   email: z.string().email(),

@@ -1,6 +1,11 @@
 import jwt from "jsonwebtoken";
 import { config } from "./config";
+import { IUser } from "../models/userModel";
 
-export const generateAuthToken = (userId: string) => {
-    return jwt.sign({ id: userId }, config.jwtSecret, { expiresIn: '7d' })
+export const generateAccessToken = (user: IUser) => {
+    return jwt.sign({ id: user.id, role: user.role }, config.jwtAccessSecret, { expiresIn: config.jwtAccessExpiresIn })
+}
+
+export const generateRefreshToken = (user: IUser) => {
+    return jwt.sign({ id: user.id, role: user.role }, config.jwtRefreshSecret, { expiresIn: config.jwtRefreshExpiresIn })
 }

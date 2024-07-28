@@ -30,7 +30,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    command: sh -c "npx prisma migrate deploy && npm run dev"
+    command: ["sh", "-c", "npm run prisma:migrate && npm run dev"]
 
   pgadmin:
     image: dpage/pgadmin4

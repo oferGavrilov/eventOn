@@ -4,7 +4,10 @@ dotenv.config();
 
 export const config = {
     port: process.env.PORT || 3000,
-    jwtSecret: process.env.JWT_SECRET!,
+    jwtAccessSecret: process.env.JWT_ACCESS_SECRET!,
+    jwtAccessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN!,
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET!,
+    jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN!,
     databaseUrl: process.env.DATABASE_URL!,
     emailService: process.env.EMAIL_SERVICE!,
     emailUsername: process.env.EMAIL_USERNAME!,
@@ -14,4 +17,5 @@ export const config = {
     twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER!,
     clientUrl: process.env.CLIENT_URL!,
     origin: process.env.ORIGIN!,
+
 };
