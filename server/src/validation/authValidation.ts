@@ -16,8 +16,17 @@ export const signupSchema = z.object({
     }),
   });
 
-  export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>['query'];
+  export const loginSchema = z.object({
+    body: z.object({
+      email: z.string().email(),
+      password: z.string().min(6),
+    }),
+  });
+
   export type SignupInput = z.infer<typeof signupSchema>['body'];
+  export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>['query'];
+  export type LoginInput = z.infer<typeof loginSchema>['body'];
+  
   // export const loginSchema = z.object({
   //   email: z.string().email(),
   //   password: z.string().min(1),

@@ -16,22 +16,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  app:
-    build: .
-    container_name: eventon_app
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: postgresql://postgres:3578@postgres:5432/eventon_db?schema=public
-    networks:
-      - eventon_network
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: ["sh", "-c", "npm run prisma:migrate && npm run dev"]
-
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin

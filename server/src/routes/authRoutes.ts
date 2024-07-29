@@ -4,6 +4,9 @@ import { validateRequest } from '../middlewares/validateRequest'
 import { signupController, verifyEmailController } from '../controllers/authController'
 
 const router = express.Router()
-router.post('/signup', validateRequest(signupSchema), signupController)
+
+router.post('/signup', validateRequest(signupSchema), signupController);
 router.get('/verify-email',validateRequest(verifyEmailSchema), verifyEmailController);
+router.post('/login', validateRequest(signupSchema), signupController);
+
 export default router

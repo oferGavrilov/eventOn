@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import prisma from '../prisma';
 import { config } from '../utils/config';
 import AppError from '../middlewares/errorMiddleware';
-import { SignupInput } from '../validation/authValidation';
+import { LoginInput, SignupInput } from '../validation/authValidation';
 import { sendVerificationEmail } from './emailService';
 import logger from '../logger';
 import { IUser } from '../models/userModel';
@@ -39,8 +39,8 @@ export const signupService = async (inputData: SignupInput) => {
     const verificationLink = `${config.clientUrl}/api/auth/verify-email?token=${verificationToken}`;
     await sendVerificationEmail(user.email, verificationLink);
 
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
+    const accessToken = generateAccessToken(user.id, role);
+    const refreshToken = generateRefreshToken(user.id, role);
 
     logger.info(`User ${user.email} signed up successfully`);
 
@@ -84,3 +84,33 @@ export const verifyEmailService = async (token: string) => {
         message: 'Email verified successfully',
     }
 };
+
+export const loginService = async (inputData: LoginInput) => {
+    const { email, password } = inputData;
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+        throw new AppError(400, 'Incorrect email or password');
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+        throw new AppError(400, 'Incorrect email or password');
+    }
+
+    const accessToken = generateAccessToken(user.id, user.role);
+    const refreshToken = generateRefreshToken(user.id, user.role);
+
+    return {
+        user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            isVerified: user.isVerified,
+        },
+        accessToken,
+        refreshToken
+    }
+}

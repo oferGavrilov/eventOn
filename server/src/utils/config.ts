@@ -17,5 +17,4 @@ export const config = {
     twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER!,
     clientUrl: process.env.CLIENT_URL!,
     origin: process.env.ORIGIN!,
-
 };
