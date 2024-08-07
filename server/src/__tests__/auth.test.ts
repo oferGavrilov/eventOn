@@ -1,12 +1,9 @@
 import request from 'supertest';
-import { app } from '../app';
+import app from '../app';
+import prisma from '../prisma';
 import bcrypt from 'bcryptjs';
 import { Server } from 'http';
-import { PrismaClient } from '@prisma/client';
-import { getPrismaClient } from '../../jest.setup';
 
-
-const prisma: PrismaClient = getPrismaClient();
 let server: Server;
 
 beforeAll(async () => {

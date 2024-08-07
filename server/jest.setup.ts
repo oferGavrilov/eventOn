@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from './src/prisma';
 
 beforeAll(async () => {
   await prisma.$connect();
@@ -9,5 +7,3 @@ beforeAll(async () => {
 afterAll(async () => {
   await prisma.$disconnect();
 });
-
-export const getPrismaClient = () => prisma;

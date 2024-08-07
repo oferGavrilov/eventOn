@@ -7,15 +7,14 @@ import cookieParser from 'cookie-parser';
 import AppError from './middlewares/errorMiddleware';
 import { apiLimiter } from './middlewares/rateLimiter';
 import { setupSwagger } from './swagger';
-import { authRoutes } from './routes';
+import authRoutes from './routes/authRoutes';
 import { config } from './utils/config';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
 const app = express();
 
 const setupServer = () => {
-     // Security HTTP headers
+  // Security HTTP headers
   app.use(helmet());
 
   // Body parser
@@ -70,4 +69,4 @@ const setupServer = () => {
 
 setupServer();
 
-export { app, prisma };
+export default app;
