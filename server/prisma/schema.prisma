@@ -1,6 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -8,21 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id                      String    @id @default(uuid())
-  firstName               String
-  lastName                String
-  email                   String    @unique
-  password                String
-  isVerified              Boolean   @default(false)
-  verificationToken       String?
-  verificationTokenExpiresAt DateTime?
-  forgotPasswordToken     String?
-  forgotPasswordExpiresAt DateTime?
-  role                    UserRole
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @default(now())
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  phone     String   @unique
+  password  String
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   EventPlanner EventPlanner?
   Supplier     Supplier?
@@ -30,16 +24,25 @@ model User {
 }
 
 model Supplier {
-  id           String       @id @default(uuid())
-  userId       String       @unique
+  id           String           @id @default(uuid())
+  userId       String           @unique
   description  String?
-  styles       String?
-  images       Json?
-  supplierType SupplierType
+  category     SupplierCategory
+  image        String?
 
   User         User          @relation(fields: [userId], references: [id])
   Applications Application[]
   Events       Event[]       @relation("SupplierEvents")
+}
+
+enum SupplierCategory {
+  EVENT_PLACES
+  MUSIC_DJS
+  MAKEUP
+  PHOTOGRAPHY
+  ATTRACTIONS
+  DESIGN
+  CATERING_DRINKS
 }
 
 model EventPlanner {
@@ -63,9 +66,8 @@ model Event {
   updatedAt      DateTime    @default(now())
 
   UserEvent      UserEvent[]
-  Guests         EventGuest[]  @relation("EventGuestRelation")
+  Guests         EventGuest[] @relation("EventGuestRelation")
   Tasks          Task[]
-  Applications   Application[]
   SupplierId     String?
   EventPlannerId String?
 
@@ -90,6 +92,7 @@ model Task {
   id             String       @id @default(uuid())
   eventId        String
   eventPlannerId String
+  name           String
   description    String
   deadline       DateTime
   status         TaskStatus
@@ -103,14 +106,15 @@ model Task {
 
 model Application {
   id         String            @id @default(uuid())
-  eventId    String
+  FullName   String
+  email      String
+  phone      String
   supplierId String
   status     ApplicationStatus
   message    String?
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @default(now())
 
-  Event    Event    @relation(fields: [eventId], references: [id])
   Supplier Supplier @relation(fields: [supplierId], references: [id])
 }
 
@@ -144,7 +148,6 @@ enum UserRole {
 }
 
 enum EventStatus {
-  Planned
   InProgress
   Completed
   Cancelled
@@ -157,7 +160,7 @@ enum ConfirmationStatus {
 }
 
 enum TaskStatus {
-  Pending
+  NotCompleted
   InProgress
   Completed
 }
@@ -172,10 +175,4 @@ enum ApplicationStatus {
   Pending
   Approved
   Rejected
-}
-
-enum SupplierType {
-  Catering
-  DJ
-  Photographer
 }
