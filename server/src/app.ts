@@ -1,30 +1,72 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import logger from './logger';
-import { json } from 'body-parser';
-import { errorMiddleware } from './middlewares/errorMiddleware';
+import cookieParser from 'cookie-parser';
+import AppError from './middlewares/errorMiddleware';
 import { apiLimiter } from './middlewares/rateLimiter';
 import { setupSwagger } from './swagger';
+import authRoutes from './routes/authRoutes';
+import { config } from './utils/config';
+import { PrismaClient } from '@prisma/client';
 
 const app = express();
 
-app.use(helmet());
-app.use(cors());
-app.use(json());
-app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) } }));
+const setupServer = () => {
+  // Security HTTP headers
+  app.use(helmet());
 
-app.use('/api/', apiLimiter); // Rate limiter (100 requests per 15 minutes
+  // Body parser
+  app.use(express.json({ limit: '10kb' }));
+  app.use(cookieParser());
 
-// Routes
+  // CORS
+  app.use(cors({
+    origin: [config.origin],
+    credentials: true,
+  }));
 
-app.get('/api/healthcheck', (req, res) => {
-  res.send('Hello World!!!');
-});
+  // Logger
+  app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) } }));
 
-setupSwagger(app);
+  // Rate limiter (100 requests per 15 minutes)
+  app.use('/api/', apiLimiter);
 
-app.use(errorMiddleware); // Error middleware
+  // Routes
+  app.use('/api/auth', authRoutes);
+
+  // Swagger Setup
+  setupSwagger(app);
+
+  // Health checker
+  app.get('/api/healthchecker', (_: Request, res: Response) => {
+    res.status(200).json({
+      status: 'success',
+      message: 'Welcome to EventOn Server! 🚀',
+    });
+  });
+
+  // UNHANDLED ROUTES
+  app.all('*', (req: Request, _: Response, next: NextFunction) => {
+    next(new AppError(404, `Can't find ${req.originalUrl} on this server!`));
+  });
+
+  // GLOBAL ERROR HANDLER
+  app.use((err: AppError, _: Request, res: Response, __: NextFunction) => {
+    logger.error(err);
+
+    err.status = err.status || 'error';
+    err.statusCode = err.statusCode || 500;
+
+    res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    });
+  });
+};
+
+setupServer();
 
 export default app;

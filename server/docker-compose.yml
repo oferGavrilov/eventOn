@@ -4,27 +4,25 @@ services:
   postgres:
     image: postgres:latest
     container_name: postgres
+    restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 3578
-      POSTGRES_DB: eventon_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  app:
-    build: .
-    container_name: eventon_app
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-    volumes:
-      - .:/app
-      - /app/node_modules
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eventon_network
 
 volumes:
   postgres_data:
+
+networks:
+  eventon_network:

@@ -1,38 +1,48 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { Transporter } from 'nodemailer';
 import { config } from '../utils/config';
 import logger from '../logger';
-import { renderTemplate } from '../utils/templateHelper';
+import { join } from 'path';
+import ejs from 'ejs';
 
-const transporter = nodemailer.createTransport({
-    service: config.emailService,
-    auth: {
-        user: config.emailUsername,
-        pass: config.emailPassword,
-    },
-});
+type MailOptions = {
+    subject: string;
+    email: string;
+    name: string;
+    code: string;
+    template: string;
+}
 
-export const sendEmail = async (to: string, subject: string, text: string, html: string): Promise<void> => {
-    const mailOptions = {
-        from: config.emailUsername,
-        to,
-        subject,
-        text,
-        html,
-    };
+export class EmailService {
+    private transporter: Transporter;
 
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Email sent to ${to}`);
-    } catch (error) {
-        logger.error(`Error sending email to ${to}:`, error);
-        throw new Error('Error sending email');
+    constructor() {
+        this.transporter = nodemailer.createTransport({
+            host: config.emailHost,
+            secure: true,
+            auth: {
+                user: config.emailUsername,
+                pass: config.emailPassword,
+            },
+        });
     }
-};
 
-export const sendResetPasswordEmail = async (to: string, resetLink: string) => {
-    const subject = 'Password Reset';
-    const text = `You requested a password reset. Please use the following link to reset your password: ${resetLink}`;
-    const html = renderTemplate('resetPassword', { resetLink });
+    async sendMail(options: MailOptions) {
+        const { subject, email, name, code, template } = options;
+        const templatePath = join(__dirname, '../templates', `${template}.ejs`);
+        const html = await ejs.renderFile(templatePath, { name, code });
 
-    await sendEmail(to, subject, text, html);
-};
+        try {
+            await this.transporter.sendMail({
+                from: `"EventOn 🎉" <${config.emailUsername}>`,
+                to: email,
+                subject,
+                html,
+            });
+
+            logger.info(`Email sent to ${email}`);
+        } catch (error) {
+            logger.error(`Error sending email to ${email}: ${error}`);
+            throw error;
+        }
+    }
+}
