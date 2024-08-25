@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  a {
+    @apply font-semibold;
+  }
+
+  button:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+  select:focus,
+  input:focus,
+  textarea:focus {
+    @apply outline-blue-500;
+  }
+
+  .auth-input {
+    @apply border border-gray-300 w-full rounded-md p-2;
+  }
+  .auth-error {
+    @apply text-red-500;
+  }
+  .auth-submit {
+    @apply bg-blue-500 text-white p-2 rounded-md w-full;
+  }
+  .auth-submit:hover {
+    @apply bg-blue-600;
+  }
+  .auth-link {
+    @apply text-blue-500 text-xs;
+  }
+}
